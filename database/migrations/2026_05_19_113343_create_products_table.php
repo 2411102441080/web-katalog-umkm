@@ -27,6 +27,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('products');
     }
-};git add .
-git commit -m "feat: membuat migrasi tabel categories, stores, dan products"
-git push origin feature-backend
+};

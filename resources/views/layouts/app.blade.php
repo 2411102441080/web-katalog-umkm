@@ -1,36 +1,57 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin E-Katalog</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col md:flex-row text-slate-700 antialiased">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+    <div class="w-full md:w-64 bg-base-100 border-r border-blue-100 p-4 space-y-2 flex flex-col justify-between">
+        <div class="space-y-4">
+            <div class="px-4 py-2">
+                <h2 class="text-lg font-bold tracking-tight text-slate-800">E-Katalog UMKM</h2>
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mt-0.5">Panel Manajemen</p>
+            </div>
+            
+            <div class="h-[1px] bg-blue-100 my-1"></div>
+            
+            <ul class="menu menu-md w-full rounded-none p-0 gap-1">
+                <li>
+                    <a href="{{ route('admin.products.index') }}" class="rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all {{ request()->routeIs('admin.products.index') ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-600 hover:bg-slate-50' }}">
+                        Kelola Barang
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.stores.index') }}" class="rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all {{ request()->routeIs('admin.stores.index') ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-600 hover:bg-slate-50' }}">
+                        Kelola Toko
+                    </a>
+                </li>
+            </ul>
         </div>
-    </body>
+        
+        <div class="space-y-2">
+            <div class="h-[1px] bg-blue-100 my-1"></div>
+            
+            <form method="POST" action="{{ route('logout') }}" class="w-full m-0 p-0">
+                @csrf
+                <button type="submit" class="btn btn-ghost hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 btn-sm w-full rounded-xl text-xs font-semibold tracking-wide transition-colors" onclick="event.preventDefault(); this.closest('form').submit();">
+                    Keluar Akun
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="flex-1 p-6 md:p-8 overflow-y-auto">
+        @if(session('success'))
+            <div class="alert bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm mb-6 max-w-6xl mx-auto rounded-xl py-3 text-xs font-semibold">
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @yield('content')
+    </div>
+
+</body>
 </html>

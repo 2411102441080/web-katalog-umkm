@@ -13,13 +13,9 @@
             <a href="/" class="text-lg font-bold tracking-tight text-slate-800 uppercase">E-Katalog UMKM</a>
         </div>
         <div class="flex-none">
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ route('admin.products.index') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm">Dashboard Admin</a>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-ghost text-slate-600 border border-slate-200 hover:bg-slate-50 btn-sm rounded-xl text-xs font-semibold px-4">Login Admin</a>
-                @endauth
-            @endif
+            @auth
+                <a href="{{ route('admin.products.index') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm">Dashboard Admin</a>
+            @endauth
         </div>
     </nav>
 
@@ -29,7 +25,32 @@
             <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 md:text-4xl">Katalog Komoditas UMKM</h1>
             <p class="text-xs text-slate-500 font-medium leading-relaxed">Platform digital publikasi produk usaha mikro, kecil, dan menengah lokal guna memperluas jangkauan pasar ekosistem digital.</p>
         </div>
-
+<!-- Komponen Filter Pencarian dan Kategori -->
+        <form action="{{ route('home') }}" method="GET" class="flex flex-col sm:flex-row gap-3 max-w-4xl mx-auto bg-base-100 p-4 rounded-xl border border-blue-100 shadow-sm">
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama produk..." class="input input-bordered border-blue-100 input-sm w-full rounded-lg text-slate-700 text-xs focus:outline-blue-400" />
+            </div>
+            <div class="w-full sm:w-48">
+                <select name="category" class="select select-bordered border-blue-100 select-sm w-full rounded-lg text-slate-700 text-xs focus:outline-blue-400">
+                    <option value="">Semua Kategori</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-lg text-xs px-6 shadow-sm">
+                    Cari
+                </button>
+                @if(request('search') || request('category'))
+                    <a href="{{ route('home') }}" class="btn btn-ghost border border-slate-200 btn-sm rounded-lg text-xs px-4">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </form>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @forelse($products as $product)
             <div class="card bg-base-100 border border-blue-100 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden flex flex-col justify-between">

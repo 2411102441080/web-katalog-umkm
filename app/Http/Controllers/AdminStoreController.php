@@ -18,18 +18,29 @@ class AdminStoreController extends Controller
         return view('admin.stores.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama_toko' => 'required|string|max:255',
-            'whatsapp'  => 'required|string|max:20',
-            'alamat'    => 'required|string',
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'nama_toko' => 'required|string|max:255',
+        'whatsapp'  => 'required|string|max:20',
+        'alamat'    => 'required|string',
+    ]);
 
-        Store::create($request->all());
-
-        return redirect()->route('admin.stores.index')->with('success', 'Data toko berhasil disimpan.');
+    $data = $request->all();
+    
+    // Bersihkan format nomor WhatsApp
+    $nomor = preg_replace('/[^0-9]/', '', $data['whatsapp']); // hapus karakter selain angka
+    if (str_starts_with($nomor, '0')) {
+        $nomor = '62' . substr($nomor, 1);
+    } elseif (str_starts_with($nomor, '62')) {
+        $nomor = $nomor;
     }
+    $data['whatsapp'] = $nomor;
+
+    Store::create($data);
+
+    return redirect()->route('admin.stores.index')->with('success', 'Data toko berhasil disimpan.');
+}
 
     public function edit(Store $store)
     {
@@ -44,14 +55,39 @@ class AdminStoreController extends Controller
             'alamat'    => 'required|string',
         ]);
 
-        $store->update($request->all());
+        $data = $request->all();
+
+        // Bersihkan format nomor WhatsApp
+        $nomor = preg_replace('/[^0-9]/', '', $data['whatsapp']);
+        if (str_starts_with($nomor, '0')) {
+            $nomor = '62' . substr($nomor, 1);
+        } elseif (str_starts_with($nomor, '62')) {
+            $nomor = $nomor;
+        }
+        $data['whatsapp'] = $nomor;
+
+        $store->update($data);
 
         return redirect()->route('admin.stores.index')->with('success', 'Data toko berhasil diperbarui.');
     }
 
     public function destroy(Store $store)
-    {
-        $store->delete();
-        return redirect()->route('admin.stores.index')->with('success', 'Data toko berhasil dihapus.');
+{
+    // Ambil semua produk milik toko ini
+    $products = $store->products;
+
+    foreach ($products as $product) {
+        // Hapus file fisik gambar dari folder storage agar tidak menimbun sampah file
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+        // Hapus data produk dari database
+        $product->delete();
     }
+
+    // Terakhir, hapus entitas toko
+    $store->delete();
+
+    return redirect()->route('admin.stores.index')->with('success', 'Data toko dan seluruh produk di dalamnya berhasil dihapus.');
+}
 }

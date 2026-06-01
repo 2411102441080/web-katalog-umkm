@@ -28,12 +28,15 @@
                         Kelola Toko
                     </a>
                 </li>
+
             </ul>
         </div>
         
         <div class="space-y-2">
             <div class="h-[1px] bg-blue-100 my-1"></div>
-            
+            <a href="{{ route('home') }}" class="btn btn-ghost hover:bg-slate-50 hover:text-blue-700 border border-slate-200 hover:border-blue-300 btn-sm w-full rounded-xl text-xs font-semibold tracking-wide transition-colors">
+                Kunjungi Situs
+            </a>
             <form method="POST" action="{{ route('logout') }}" class="w-full m-0 p-0">
                 @csrf
                 <button type="submit" class="btn btn-ghost hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 btn-sm w-full rounded-xl text-xs font-semibold tracking-wide transition-colors" onclick="event.preventDefault(); this.closest('form').submit();">

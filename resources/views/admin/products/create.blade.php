@@ -58,7 +58,7 @@
 
             <div class="form-control">
                 <label class="label"><span class="label-text font-semibold text-slate-600 text-xs">File Dokumentasi Gambar</span></label>
-                <input type="file" name="image" class="file-input file-input-bordered border-blue-100 file-input-sm w-full rounded-lg text-slate-700 text-xs" accept="image/*" required />
+                <input type="file" name="image" class="file-input file-input-bordered border-blue-100 file-input-sm w-full rounded-lg text-slate-700 text-xs" max="2048" accept=".jpg,.jpeg,.png" required />
                 <span class="text-[10px] text-slate-400 mt-1 italic">Format file yang didukung: .png, .jpg, .jpeg (Maksimal 2 MB).</span>
             </div>
 

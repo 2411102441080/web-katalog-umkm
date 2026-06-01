@@ -26,15 +26,15 @@ class AdminProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'store_id' => 'required',
-            'category_id' => 'required',
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'description' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+    'store_id' => 'required|exists:stores,id',
+    'category_id' => 'required|exists:categories,id',
+    'name' => 'required|string|max:255',
+    'price' => 'required|numeric|min:0',
+    'description' => 'required|string',
+    'image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Maks 2MB & Aman
+]);
 
-        $imagePath = $request->file('image')->store('products', 'public');
+    $imagePath = $request->file('image')->store('products', 'public');
 
         Product::create([
             'store_id' => $request->store_id,
@@ -60,12 +60,12 @@ class AdminProductController extends Controller
         $product = Product::findOrFail($id);
 
         $request->validate([
-            'store_id' => 'required',
-            'category_id' => 'required',
+            'store_id' => 'required|exists:stores,id',
+            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'description' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // boleh kosong saat edit
+            'price' => 'required|numeric|min:0',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         // Jika admin mengunggah foto baru

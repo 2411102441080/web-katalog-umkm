@@ -6,9 +6,9 @@
     <title>Panel Admin E-Katalog</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col md:flex-row text-slate-700 antialiased">
+<body class="bg-slate-50 h-screen flex flex-col md:flex-row text-slate-700 antialiased overflow-hidden">
 
-    <div class="w-full md:w-64 bg-base-100 border-r border-blue-100 p-4 space-y-2 flex flex-col justify-between">
+    <div class="w-full md:w-64 md:h-screen md:sticky md:top-0 bg-base-100 border-r border-blue-100 p-4 space-y-2 flex flex-col justify-between z-20 shrink-0">
         <div class="space-y-4">
             <div class="px-4 py-2">
                 <h2 class="text-lg font-bold tracking-tight text-slate-800">E-Katalog UMKM</h2>
@@ -28,7 +28,6 @@
                         Kelola Toko
                     </a>
                 </li>
-
             </ul>
         </div>
         
@@ -46,7 +45,7 @@
         </div>
     </div>
 
-    <div class="flex-1 p-6 md:p-8 overflow-y-auto">
+    <div class="flex-1 h-full p-6 md:p-8 overflow-y-auto">
         @if(session('success'))
             <div class="alert bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm mb-6 max-w-6xl mx-auto rounded-xl py-3 text-xs font-semibold">
                 <span>{{ session('success') }}</span>

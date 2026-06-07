@@ -19,38 +19,100 @@
         </div>
     </nav>
 
-    <main class="flex-1 max-w-7xl mx-auto p-6 md:p-12 w-full space-y-8">
+<main class="flex-1 max-w-7xl mx-auto p-6 md:p-12 w-full space-y-12">
         
-        <div class="text-center max-w-2xl mx-auto space-y-2">
-            <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 md:text-4xl">Katalog Komoditas UMKM</h1>
-            <p class="text-xs text-slate-500 font-medium leading-relaxed">Platform digital publikasi produk usaha mikro, kecil, dan menengah lokal guna memperluas jangkauan pasar ekosistem digital.</p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white border border-blue-100 rounded-3xl p-6 md:p-12 shadow-xs relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-50/50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-50/40 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="lg:col-span-7 space-y-6 text-left relative z-10">
+                <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    Digitalisasi Produk Lokal
+                </div>
+                <div class="space-y-3">
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 md:text-5xl leading-tight">
+                        Katalog Komoditas <br class="hidden md:block" />
+                        Resmi <span class="text-blue-600">UMKM Lokal</span>
+                    </h1>
+                    <p class="text-xs md:text-sm text-slate-500 font-medium leading-relaxed max-w-xl">
+                        Platform digital publikasi produk usaha mikro, kecil, dan menengah guna memperluas jangkauan pasar ekosistem digital secara transparan, cepat, dan terintegrasi langsung dengan produsen.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 pt-4 max-w-md border-t border-slate-100">
+                    <div>
+                        <div class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">{{ $products->count() }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-0.5">Total Produk</div>
+                    </div>
+                    <div>
+                        <div class="text-xl md:text-2xl font-black text-blue-600 tracking-tight">{{ $categories->count() }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-0.5">Kategori</div>
+                    </div>
+                    <div>
+                        <div class="text-xl md:text-2xl font-black text-emerald-600 tracking-tight">100%</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-0.5">UMKM Mitra</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 hidden lg:block relative p-4">
+                <div class="w-full h-full bg-blue-50/70 rounded-3xl border border-blue-100/50 shadow-inner relative overflow-hidden flex items-center justify-center p-8 text-center border-dashed">
+                    
+                    <div class="absolute -top-12 -left-12 w-48 h-48 bg-blue-100/40 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-16 -right-16 w-56 h-56 bg-emerald-50/30 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="relative z-10 space-y-2.5">
+                        <span class="text-[9px] uppercase font-black text-blue-600/80 tracking-widest px-2.5 py-1 bg-white rounded-full border border-blue-100/60 shadow-xs">
+                            Katalog Publik Resmi
+                        </span>
+                        <p class="text-[11px] text-slate-500 font-medium leading-relaxed max-w-[240px]">
+                            Eksplorasi ribuan produk unggulan dari pelaku usaha mikro, kecil, dan menengah lokal yang terkurasi.
+                        </p>
+                    </div>
+
+                    <div class="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-blue-100/40 rounded-tr-3xl"></div>
+                    <div class="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-blue-100/40 rounded-bl-3xl"></div>
+
+                </div>
+            </div>
         </div>
 
-        <form action="{{ route('home') }}" method="GET" class="flex flex-col sm:flex-row gap-3 max-w-4xl mx-auto bg-base-100 p-4 rounded-xl border border-blue-100 shadow-sm">
-            <div class="flex-1">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama produk..." class="input input-bordered border-blue-100 input-sm w-full rounded-lg text-slate-700 text-xs focus:outline-blue-400" />
-            </div>
-            <div class="w-full sm:w-48">
-                <select name="category" class="select select-bordered border-blue-100 select-sm w-full rounded-lg text-slate-700 text-xs focus:outline-blue-400">
-                    <option value="">Semua Kategori</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                            {{ $category->nama_kategori }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+        <form action="{{ route('home') }}" method="GET" class="space-y-5 max-w-4xl mx-auto bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
             <div class="flex gap-2">
-                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-lg text-xs px-6 shadow-sm">
+                <div class="flex-1">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama produk..." class="input input-bordered border-blue-100 input-sm w-full rounded-xl text-slate-700 text-xs focus:outline-blue-400 h-9" />
+                </div>
+                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs px-6 shadow-sm h-9">
                     Cari
                 </button>
-                @if(request('search') || request('category'))
-                    <a href="{{ route('home') }}" class="btn btn-ghost border border-slate-200 btn-sm rounded-lg text-xs px-4">
-                        Reset
-                    </a>
-                @endif
+            </div>
+
+            <div class="space-y-2 border-t border-slate-50 pt-3">
+                <label class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Pilih Kategori Produk</label>
+                
+                <div class="flex flex-wrap gap-2">
+                    <input type="hidden" name="category" id="active_category" value="{{ request('category') }}">
+
+                    <button type="button" onclick="filterCategory('')" class="btn btn-sm rounded-xl text-xs font-semibold tracking-wide border transition-all px-4 h-8 min-h-8 {{ request('category') == '' ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300' }}">
+                        Semua Kategori
+                    </button>
+
+                    @foreach($categories as $category)
+                        <button type="button" onclick="filterCategory('{{ $category->id }}')" class="btn btn-sm rounded-xl text-xs font-semibold tracking-wide border transition-all px-4 h-8 min-h-8 {{ request('category') == $category->id ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300' }}">
+                            {{ $category->nama_kategori }}
+                        </button>
+                    @endforeach
+                </div>
             </div>
         </form>
+
+        <script>
+            function filterCategory(id) {
+                document.getElementById('active_category').value = id;
+                document.getElementById('active_category').closest('form').submit();
+            }
+        </script>
 
         @if(request('search'))
             <div class="max-w-4xl mx-auto text-xs text-slate-500">

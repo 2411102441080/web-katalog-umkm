@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Store;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -28,24 +29,48 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+    use App\Models\Store; // Pastikan Rani menambahkan import ini di bagian atas file
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+public function store(Request $request): RedirectResponse
+{
+    // 1. Validasi input akun sekaligus input toko awal
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'nama_toko' => ['required', 'string', 'max:255'], // Tambahan input toko
+        'whatsapp' => ['required', 'string', 'max:20'],    // Tambahan input toko
+        'alamat' => ['required', 'string'],                // Tambahan input toko
+    ]);
 
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+    // 2. Bersihkan otomatis format nomor WhatsApp (logika kita kemarin)
+    $nomor = preg_replace('/[^0-9]/', '', $request->whatsapp);
+    if (str_starts_with($nomor, '0')) {
+        $nomor = '62' . substr($nomor, 1);
     }
+
+    // 3. Simpan data user baru sebagai 'umkm'
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 'umkm', // Otomatis diset sebagai pelaku UMKM
+    ]);
+
+    // 4. Simpan data toko miliknya dengan status 'pending'
+    Store::create([
+        'user_id' => $user->id,
+        'nama_toko' => $request->nama_toko,
+        'whatsapp' => $nomor,
+        'alamat' => $request->alamat,
+        'status' => 'pending', // Menunggu validasi admin utama
+    ]);
+
+    event(new Registered($user));
+
+    Auth::login($user);
+
+    // 5. Lempar ke halaman utama dashboard (nanti kita batasi lewat middleware)
+    return redirect(route('admin.products.index', absolute: false));
+}
 }

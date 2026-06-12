@@ -22,7 +22,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // WAJIB DITAMBAHKAN AGAR ROLE BISA DISIMPAN
     ];
+
+    // Relasi sudah benar
+    public function store()
+    {
+        return $this->hasOne(Store::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

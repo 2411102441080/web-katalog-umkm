@@ -43,7 +43,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="avatar">
                                     <div class="mask mask-squircle w-11 h-11 bg-slate-100">
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="object-cover" />
+                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
                                     </div>
                                 </div>
                                 <div>
@@ -68,11 +68,14 @@
                                 <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-ghost btn-xs rounded-md hover:bg-amber-500 hover:text-white font-medium px-2.5">
                                     Edit
                                 </a>
+                                
                                 <div class="w-[1px] h-3 bg-slate-200 self-center"></div>
-                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Hapus data secara permanen?')" class="m-0 p-0 inline">
+                                
+                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="m-0 p-0 inline form-delete">
                                     @csrf 
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-ghost btn-xs rounded-md hover:bg-rose-600 hover:text-white font-medium px-2.5">
+                                    
+                                    <button type="button" class="btn btn-ghost btn-xs rounded-md hover:bg-rose-600 hover:text-white font-medium px-2.5 btn-delete">
                                         Hapus
                                     </button>
                                 </form>

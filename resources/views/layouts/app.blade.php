@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Manajemen E-Katalog</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-slate-50 h-screen flex flex-col md:flex-row text-slate-700 antialiased overflow-hidden">
 
@@ -63,5 +64,36 @@
         @yield('content')
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    const form = this.closest('.form-delete');
+                    
+                    Swal.fire({
+                        title: 'Apakah Anda yakin?',
+                        text: "Data akan terhapus secara permanen!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#e11d48',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        customClass: {
+                            popup: 'rounded-2xl',
+                            confirmButton: 'rounded-xl text-xs font-bold uppercase py-2 px-4',
+                            cancelButton: 'rounded-xl text-xs font-bold uppercase py-2 px-4'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

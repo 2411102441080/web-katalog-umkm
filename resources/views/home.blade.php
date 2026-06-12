@@ -12,14 +12,33 @@
         <div class="flex-1">
             <a href="/" class="text-lg font-bold tracking-tight text-slate-800 uppercase">E-Katalog UMKM</a>
         </div>
-        <div class="flex-none">
+        <div class="flex-none flex items-center gap-2">
             @auth
-                <a href="{{ route('admin.products.index') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm">Dashboard Admin</a>
+                <a href="{{ route('admin.products.index') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm h-9 min-h-9 flex items-center">
+                    Kembali ke Dashboard
+                </a>
+                
+                <form method="POST" action="{{ route('logout') }}" class="m-0 p-0 inline-flex items-center">
+                    @csrf
+                    <button type="submit" class="btn btn-ghost hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 btn-sm rounded-xl text-xs font-semibold px-4 h-9 min-h-9" onclick="event.preventDefault(); this.closest('form').submit();">
+                        Keluar
+                    </button>
+                </form>
             @endauth
+
+            @guest
+                <a href="{{ route('register') }}" class="btn btn-ghost hover:bg-blue-50 hover:text-blue-700 border border-blue-200 hover:border-blue-300 btn-sm rounded-xl text-xs font-bold px-4 h-9 min-h-9 flex items-center uppercase tracking-wide">
+                    Daftar Mitra UMKM
+                </a>
+
+                <a href="{{ route('login') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-bold px-5 shadow-sm h-9 min-h-9 flex items-center uppercase tracking-wide">
+                    Masuk Akun
+                </a>
+            @endguest
         </div>
     </nav>
 
-<main class="flex-1 max-w-7xl mx-auto p-6 md:p-12 w-full space-y-12">
+    <main class="flex-1 max-w-7xl mx-auto p-6 md:p-12 w-full space-y-12">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white border border-blue-100 rounded-3xl p-6 md:p-12 shadow-xs relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-50/50 rounded-full blur-2xl pointer-events-none"></div>
@@ -58,10 +77,8 @@
 
             <div class="lg:col-span-5 hidden lg:block relative p-4">
                 <div class="w-full h-full bg-blue-50/70 rounded-3xl border border-blue-100/50 shadow-inner relative overflow-hidden flex items-center justify-center p-8 text-center border-dashed">
-                    
                     <div class="absolute -top-12 -left-12 w-48 h-48 bg-blue-100/40 rounded-full blur-3xl pointer-events-none"></div>
                     <div class="absolute -bottom-16 -right-16 w-56 h-56 bg-emerald-50/30 rounded-full blur-3xl pointer-events-none"></div>
-                    
                     <div class="relative z-10 space-y-2.5">
                         <span class="text-[9px] uppercase font-black text-blue-600/80 tracking-widest px-2.5 py-1 bg-white rounded-full border border-blue-100/60 shadow-xs">
                             Katalog Publik Resmi
@@ -70,10 +87,8 @@
                             Eksplorasi ribuan produk unggulan dari pelaku usaha mikro, kecil, dan menengah lokal yang terkurasi.
                         </p>
                     </div>
-
                     <div class="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-blue-100/40 rounded-tr-3xl"></div>
                     <div class="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-blue-100/40 rounded-bl-3xl"></div>
-
                 </div>
             </div>
         </div>
@@ -90,14 +105,11 @@
 
             <div class="space-y-2 border-t border-slate-50 pt-3">
                 <label class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Pilih Kategori Produk</label>
-                
                 <div class="flex flex-wrap gap-2">
                     <input type="hidden" name="category" id="active_category" value="{{ request('category') }}">
-
                     <button type="button" onclick="filterCategory('')" class="btn btn-sm rounded-xl text-xs font-semibold tracking-wide border transition-all px-4 h-8 min-h-8 {{ request('category') == '' ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300' }}">
                         Semua Kategori
                     </button>
-
                     @foreach($categories as $category)
                         <button type="button" onclick="filterCategory('{{ $category->id }}')" class="btn btn-sm rounded-xl text-xs font-semibold tracking-wide border transition-all px-4 h-8 min-h-8 {{ request('category') == $category->id ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300' }}">
                             {{ $category->nama_kategori }}
@@ -123,7 +135,6 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @forelse($products as $product)
             <div class="card bg-base-100 border border-blue-100 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden flex flex-col justify-between">
-                
                 <figure class="h-48 bg-slate-100 relative">
                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
                     <span class="badge bg-blue-600 text-white border-none font-bold text-[9px] uppercase tracking-wider px-2.5 py-2 absolute top-3 right-3 shadow-sm">
@@ -148,19 +159,16 @@
                         <div class="text-base font-black text-blue-600 tracking-tight">
                             Rp {{ number_format($product->price, 0, ',', '.') }}
                         </div>
-                        
                         <button onclick="document.getElementById('modal_detail_{{ $product->id }}').showModal()" class="btn btn-ghost border border-slate-200 hover:bg-slate-50 btn-sm w-full rounded-xl text-xs font-semibold tracking-wide">
                             Detail Produk
                         </button>
-
                         <a href="https://wa.me/{{ $product->store->whatsapp }}?text=Halo%20{{ urlencode($product->store->nama_toko) }},%20saya%20tertarik%20dengan%20produk%20*{{ urlencode($product->name) }}*%20yang%20tertera%20pada%20E-Katalog." 
                            target="_blank" 
                            class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm">
-                           Hubungi Penjual
+                            Hubungi Penjual
                         </a>
                     </div>
                 </div>
-
             </div>
 
             <dialog id="modal_detail_{{ $product->id }}" class="modal modal-bottom sm:modal-middle">
@@ -180,25 +188,20 @@
                                         Rp {{ number_format($product->price, 0, ',', '.') }}
                                     </div>
                                 </div>
-
                                 <div class="h-[1px] bg-slate-100"></div>
-
                                 <div class="space-y-1">
                                     <h4 class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Deskripsi Produk</h4>
                                     <p class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto pr-1">
                                         {{ $product->description }}
                                     </p>
                                 </div>
-
                                 <div class="h-[1px] bg-slate-100"></div>
-
                                 <div class="space-y-1 p-3 bg-blue-50/40 rounded-xl border border-blue-50">
                                     <h4 class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Informasi UMKM</h4>
                                     <p class="text-xs font-bold text-slate-800">{{ $product->store->nama_toko }}</p>
                                     <p class="text-[11px] text-slate-500 leading-normal mt-0.5"><span class="font-medium text-slate-400">Alamat:</span> {{ $product->store->alamat }}</p>
                                 </div>
                             </div>
-
                             <div class="flex gap-2 pt-2">
                                 <form method="dialog" class="flex-1 m-0 p-0">
                                     <button class="btn btn-ghost border border-slate-200 w-full btn-sm rounded-xl text-xs font-semibold">Tutup</button>
@@ -206,7 +209,7 @@
                                 <a href="https://wa.me/{{ $product->store->whatsapp }}?text=Halo%20{{ urlencode($product->store->nama_toko) }},%20saya%20tertarik%20dengan%20produk%20*{{ urlencode($product->name) }}*%20yang%20tertera%20pada%20E-Katalog." 
                                    target="_blank" 
                                    class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
-                                   Beli Produk
+                                    Beli Produk
                                 </a>
                             </div>
                         </div>

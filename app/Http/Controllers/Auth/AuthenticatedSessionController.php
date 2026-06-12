@@ -28,9 +28,31 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // =============== PROTEKSI STATUS UMKM ===============
+        $user = auth()->user();
+        
+        // Jika yang login adalah UMKM dan status tokonya belum aktif
+        if ($user->role === 'umkm' && $user->store && $user->store->status !== 'active') {
+            
+            // Ambil status toko untuk menentukan pesan hambatannya
+            $status = $user->store->status;
+            
+            // Keluarkan kembali user dari sistem keamanan login
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Lempar kembali ke halaman login dengan pesan sesuai status toko
+            if ($status === 'pending') {
+                return redirect()->route('login')->with('status', 'Akun UMKM Anda sedang dalam proses validasi oleh Admin Utama. Mohon tunggu verifikasi.');
+            } elseif ($status === 'rejected') {
+                return redirect()->route('login')->with('status', 'Maaf, pengajuan pendaftaran mitra UMKM Anda ditolak oleh Admin Utama karena tidak memenuhi syarat.');
+            }
+        }
+        // =====================================================
+
         return redirect()->intended(route('admin.products.index', absolute: false));
     }
-
     /**
      * Destroy an authenticated session.
      */

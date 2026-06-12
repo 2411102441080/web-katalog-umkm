@@ -12,11 +12,14 @@ class AdminProductController extends Controller
 {
     public function index()
     {
-        // Jika yang masuk adalah akun UMKM, batasi hanya melihat produk miliknya sendiri
+        // 1. CEK ROLE: Jika pelaku UMKM, batasi data produk milik tokonya sendiri
         if (auth()->user()->role === 'umkm') {
+            if (!auth()->user()->store) {
+                abort(403, 'Akun UMKM Anda belum memiliki entitas data Toko.');
+            }
             $products = Product::where('store_id', auth()->user()->store->id)->latest()->get();
         } else {
-            // Admin Utama dapat memantau seluruh produk dari semua toko
+            // 2. JALUR ADMIN: Langsung ambil semua produk tanpa memicu error "property id on null"
             $products = Product::with(['store', 'category'])->latest()->get();
         }
 
@@ -26,7 +29,7 @@ class AdminProductController extends Controller
     public function create()
     {
         $categories = Category::all();
-        // Admin bisa memilih semua toko, UMKM tidak perlu memilih toko karena otomatis
+        // Admin bisa memilih semua toko aktif, UMKM tidak perlu karena otomatis
         $stores = Store::where('status', 'active')->get();
 
         return view('admin.products.create', compact('categories', 'stores'));
@@ -40,13 +43,13 @@ class AdminProductController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            // Jika admin yang menambah data, field store_id wajib diisi manual
+            // Jika admin yang menambah, field store_id wajib dipilih dari dropdown
             'store_id' => auth()->user()->role === 'admin' ? 'required|exists:stores,id' : 'nullable',
         ]);
 
         $data = $request->all();
 
-        // Otomatisasi penentuan hak kepemilikan toko jika diisi oleh akun UMKM
+        // Otomatisasi store_id khusus untuk akun UMKM
         if (auth()->user()->role === 'umkm') {
             $data['store_id'] = auth()->user()->store->id;
         }
@@ -57,14 +60,14 @@ class AdminProductController extends Controller
 
         Product::create($data);
 
-        return redirect()->route('admin.products.index')->with('success', 'Produk komoditas berhasil ditambahkan.');
+        return redirect()->route('admin.products.index')->with('success', 'Produk baru berhasil diterbitkan.');
     }
 
     public function edit(Product $product)
     {
-        // Proteksi berlapis: UMKM dilarang keras mengedit produk milik toko lain secara ilegal
+        // Proteksi: Akun UMKM dilarang mengedit produk milik toko lain
         if (auth()->user()->role === 'umkm' && $product->store_id !== auth()->user()->store->id) {
-            abort(403, 'Akses ditolak. Anda bukan pemilik sah dari produk ini.');
+            abort(403, 'Akses ditolak. Anda bukan pemilik sah produk ini.');
         }
 
         $categories = Category::all();
@@ -76,7 +79,7 @@ class AdminProductController extends Controller
     public function update(Request $request, Product $product)
     {
         if (auth()->user()->role === 'umkm' && $product->store_id !== auth()->user()->store->id) {
-            abort(403, 'Akses ditolak. Anda bukan pemilik sah dari produk ini.');
+            abort(403, 'Akses ditolak.');
         }
 
         $request->validate([
@@ -109,7 +112,7 @@ class AdminProductController extends Controller
     public function destroy(Product $product)
     {
         if (auth()->user()->role === 'umkm' && $product->store_id !== auth()->user()->store->id) {
-            abort(403, 'Akses ditolak. Anda bukan pemilik sah dari produk ini.');
+            abort(403, 'Akses ditolak.');
         }
 
         if ($product->image) {
@@ -118,6 +121,6 @@ class AdminProductController extends Controller
 
         $product->delete();
 
-        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus dari sistem.');
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus dari katalog.');
     }
 }

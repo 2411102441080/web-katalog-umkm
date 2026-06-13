@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrasi Mitra UMKM Baru</title>
+    <title>Registrasi Akun E-Katalog Baru</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col justify-center items-center p-6 antialiased text-slate-700">
         
-    <div class="w-full max-w-lg bg-white border border-blue-100 shadow-sm rounded-2xl p-6 md:p-8 space-y-6my-8">
+    <div class="w-full max-w-lg bg-white border border-blue-100 shadow-sm rounded-2xl p-6 md:p-8 space-y-6 my-8">
         
         <div class="text-center space-y-1">
-            <h2 class="text-xl font-extrabold tracking-tight text-slate-800 uppercase">Pendaftaran Mitra</h2>
+            <h2 class="text-xl font-extrabold tracking-tight text-slate-800 uppercase">Pendaftaran Akun</h2>
             <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Bergabung ke Ekosistem E-Katalog</p>
         </div>
 
@@ -25,7 +25,7 @@
                 
                 <div class="form-control w-full">
                     <label class="label pb-1" for="name">
-                        <span class="label-text font-bold text-slate-600 text-xs">Nama Lengkap Pemilik</span>
+                        <span class="label-text font-bold text-slate-600 text-xs">Nama Lengkap</span>
                     </label>
                     <input id="name" class="input input-bordered border-blue-100 input-sm w-full h-9 rounded-xl text-slate-700 text-xs focus:outline-blue-400 focus:border-blue-400" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" />
                     @if ($errors->get('name'))
@@ -40,6 +40,19 @@
                     <input id="email" class="input input-bordered border-blue-100 input-sm w-full h-9 rounded-xl text-slate-700 text-xs focus:outline-blue-400 focus:border-blue-400" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" />
                     @if ($errors->get('email'))
                         <div class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $errors->first('email') }}</div>
+                    @endif
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label pb-1" for="role_select">
+                        <span class="label-text font-bold text-slate-600 text-xs">Daftar Sebagai</span>
+                    </label>
+                    <select id="role_select" name="role" onchange="toggleFormToko()" class="select select-bordered border-blue-100 select-sm w-full h-9 rounded-xl text-slate-700 text-xs focus:outline-blue-400 focus:border-blue-400">
+                        <option value="umkm" {{ old('role') == 'umkm' ? 'selected' : '' }}>Mitra UMKM (Ingin Buka Lapak Katalog)</option>
+                        <option value="guest" {{ old('role') == 'guest' ? 'selected' : '' }}>Pembeli Umum / Guest (Hanya Lihat & Hubungi)</option>
+                    </select>
+                    @if ($errors->get('role'))
+                        <div class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $errors->first('role') }}</div>
                     @endif
                 </div>
 
@@ -65,7 +78,7 @@
 
             <div class="h-[1px] bg-slate-100 my-2"></div>
 
-            <div class="space-y-3">
+            <div id="form_toko_wrapper" class="space-y-3">
                 <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest block">2. Informasi Badan Usaha / Toko</span>
 
                 <div class="form-control w-full">
@@ -79,18 +92,12 @@
                 </div>
 
                 <div class="form-control w-full">
-                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Nomor WhatsApp Toko</label>
-                    <input type="tel" 
-                        name="whatsapp" 
-                        value="{{ old('whatsapp') }}" 
-                        inputmode="numeric" 
-                        pattern="[0-9]*" 
-                        placeholder="Contoh: 08123456789" 
-                        class="input input-bordered w-full rounded-xl text-xs @error('whatsapp') border-rose-500 @enderror" 
-                        required />
-                    
+                    <label class="label pb-1" for="whatsapp">
+                        <span class="label-text font-bold text-slate-600 text-xs">Nomor WhatsApp Toko</span>
+                    </label>
+                    <input id="whatsapp" type="tel" name="whatsapp" value="{{ old('whatsapp') }}" inputmode="numeric" pattern="[0-9]*" placeholder="Contoh: 08123456789" class="input input-bordered border-blue-100 input-sm w-full h-9 rounded-xl text-slate-700 text-xs focus:outline-blue-400 focus:border-blue-400 @error('whatsapp') border-rose-500 @enderror" required />
                     @error('whatsapp')
-                        <span class="text-[11px] text-rose-600 mt-1 block font-medium">
+                        <span class="text-[11px] text-rose-600 mt-1 block font-semibold">
                             {{ $message == 'The whatsapp field format is invalid.' ? 'Nomor WhatsApp harus berupa angka murni tanpa spasi atau karakter lain.' : $message }}
                         </span>
                     @enderror
@@ -109,7 +116,7 @@
 
             <div class="pt-4">
                 <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm w-full h-9 min-h-9 rounded-xl text-xs font-bold tracking-wide shadow-xs transition-colors uppercase">
-                    Ajukan Pendaftaran Mitra
+                    Ajukan Pendaftaran Akun
                 </button>
             </div>
         </form>
@@ -124,6 +131,37 @@
         </div>
 
     </div>
+
+    <script>
+        function toggleFormToko() {
+            const role = document.getElementById('role_select').value;
+            const formTokoWrapper = document.getElementById('form_toko_wrapper');
+            
+            // Ambil elemen input di dalam form toko untuk diatur atribut required-nya
+            const inputNamaToko = document.getElementById('nama_toko');
+            const inputWhatsapp = document.getElementById('whatsapp');
+            const inputAlamat = document.getElementById('alamat');
+
+            if (role === 'guest') {
+                formTokoWrapper.style.display = 'none';
+                
+                // Matikan required HTML5 agar tidak memblokir submit form guest
+                inputNamaToko.removeAttribute('required');
+                inputWhatsapp.removeAttribute('required');
+                inputAlamat.removeAttribute('required');
+            } else {
+                formTokoWrapper.style.display = 'block';
+                
+                // Aktifkan kembali required jika mendaftar sebagai UMKM
+                inputNamaToko.setAttribute('required', '');
+                inputWhatsapp.setAttribute('required', '');
+                inputAlamat.setAttribute('required', '');
+            }
+        }
+        
+        // Periksa kondisi tipe role saat halaman selesai dimuat pertama kali
+        document.addEventListener("DOMContentLoaded", toggleFormToko);
+    </script>
 
 </body>
 </html>

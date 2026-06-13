@@ -7,6 +7,8 @@ use App\Http\Controllers\AdminStoreController;
 
 // Rute Publik (Halaman Depan Katalog)
 Route::get('/', [HomeController::class, 'index'])->name('home');
+// Rute untuk halaman detail UMKM/Toko
+Route::get('/store/{id}', [HomeController::class, 'storeDetail'])->name('store.detail');
 
 // Grup Rute Autentikasi (Wajib Login)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

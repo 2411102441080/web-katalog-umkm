@@ -13,38 +13,67 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. BUAT AKUN ADMIN
-        User::create([
+        // 1. BUAT AKUN PENGGUNA (ADMIN & PEMILIK UMKM)
+        $adminUser = User::create([
             'name' => 'Admin Utama',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password123'),
+            'role' => 'admin',
         ]);
 
-        // 2. BUAT DATA KATEGORI
+        $userToko1 = User::create([
+            'name' => 'Budi Craft',
+            'email' => 'budi@gmail.com',
+            'password' => Hash::make('password123'),
+            'role' => 'umkm',
+        ]);
+
+        $userToko2 = User::create([
+            'name' => 'Siti Kuliner',
+            'email' => 'siti@gmail.com',
+            'password' => Hash::make('password123'),
+            'role' => 'umkm',
+        ]);
+
+        $userToko3 = User::create([
+            'name' => 'Andi Tenun',
+            'email' => 'andi@gmail.com',
+            'password' => Hash::make('password123'),
+            'role' => 'umkm',
+        ]);
+
+        // 2. BUAT DATA KATEGORI (Sesuai database kamu)
         $kriya = Category::create(['nama_kategori' => 'Kerajinan Tangan']);
         $kuliner = Category::create(['nama_kategori' => 'Makanan & Minuman']);
         $fashion = Category::create(['nama_kategori' => 'Pakaian & Aksesoris']);
 
-        // 3. BUAT DATA TOKO UMKM (Format WA otomatis murni angka kode negara)
+        // 3. BUAT DATA TOKO UMKM (Wajib ditambahkan 'status' => 'active' & 'user_id')
         $toko1 = Store::create([
+            'user_id' => $userToko1->id,
             'nama_toko' => 'Kriya Nusantara Craft',
             'whatsapp' => '6281234567890',
-            'alamat' => 'Jl. Merdeka No. 12, Kelurahan Pelita, Samarinda'
+            'alamat' => 'Jl. Merdeka No. 12, Kelurahan Pelita, Samarinda',
+            'status' => 'active',
         ]);
 
         $toko2 = Store::create([
+            'user_id' => $userToko2->id,
             'nama_toko' => 'Dapur Rasa Lokal',
             'whatsapp' => '6289876543210',
-            'alamat' => 'Gang Baiturrahman No. 45, Samarinda Seberang'
+            'alamat' => 'Gang Baiturrahman No. 45, Samarinda Seberang',
+            'status' => 'active',
         ]);
 
         $toko3 = Store::create([
+            'user_id' => $userToko3->id,
             'nama_toko' => 'Tenun Benang Mahakam',
             'whatsapp' => '6285211223344',
-            'alamat' => 'Kawasan Kampung Tenun, Samarinda'
+            'alamat' => 'Kawasan Kampung Tenun, Samarinda',
+            'status' => 'active',
         ]);
 
-        // 4. BUAT DATA PRODUK YANG BANYAK
+        // 4. BUAT DATA PRODUK (Nama file gambar murni menggunakan aset milikmu)
+        
         // Kategori: Kerajinan Tangan
         Product::create([
             'store_id' => $toko1->id,
@@ -52,7 +81,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Tas Rotan Etnik Kalimantan',
             'price' => 175000,
             'description' => 'Tas rotan handmade anyaman khas motif Dayak yang kuat, modis, dan cocok untuk acara santai maupun formal.',
-            'image' => 'products/tas_rotan.jpg', // Pastikan file ada di storage atau diisi mockup nanti
+            'image' => 'products/tas_rotan.jpg',
         ]);
 
         Product::create([

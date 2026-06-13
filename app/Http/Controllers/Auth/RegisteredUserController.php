@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
@@ -37,7 +36,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'nama_toko' => ['required', 'string', 'max:255'], 
-            'whatsapp' => ['required', 'string', 'max:20'],    
+            'whatsapp' => ['required', 'string', 'regex:/^[0-9]+$/', 'min:10', 'max:15'],    
             'alamat' => ['required', 'string'],                
         ]);
 
@@ -66,9 +65,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        // 5. Lempar ke halaman utama dashboard
-        return redirect(route('admin.products.index', absolute: false));
+        // PERBAIKAN KEAMANAN: Membatalkan login otomatis bawaan Laravel Breeze
+        // Sesi langsung diarahkan kembali ke form login dengan pesan flash info peninjauan.
+        return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Akun dan toko Anda saat ini sedang dalam proses peninjauan oleh Admin Utama. Silakan coba masuk setelah divalidasi.');
     }
 }

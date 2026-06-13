@@ -22,7 +22,11 @@
                 {{ session('status') }}
             </div>
         @endif
-
+        @if (session('success'))
+            <div class="p-4 mb-4 text-xs font-medium text-emerald-800 bg-emerald-50 rounded-xl border border-emerald-100">
+                {{ session('success') }}
+            </div>
+        @endif
         <form method="POST" action="{{ route('login') }}" class="space-y-4 m-0 p-0">
             @csrf
 

@@ -79,13 +79,21 @@
                 </div>
 
                 <div class="form-control w-full">
-                    <label class="label pb-1" for="whatsapp">
-                        <span class="label-text font-bold text-slate-600 text-xs">Nomor WhatsApp Aktif</span>
-                    </label>
-                    <input id="whatsapp" placeholder="Contoh: 08123456789" class="input input-bordered border-blue-100 input-sm w-full h-9 rounded-xl text-slate-700 text-xs focus:outline-blue-400 focus:border-blue-400" type="text" name="whatsapp" value="{{ old('whatsapp') }}" required />
-                    @if ($errors->get('whatsapp'))
-                        <div class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $errors->first('whatsapp') }}</div>
-                    @endif
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Nomor WhatsApp Toko</label>
+                    <input type="tel" 
+                        name="whatsapp" 
+                        value="{{ old('whatsapp') }}" 
+                        inputmode="numeric" 
+                        pattern="[0-9]*" 
+                        placeholder="Contoh: 08123456789" 
+                        class="input input-bordered w-full rounded-xl text-xs @error('whatsapp') border-rose-500 @enderror" 
+                        required />
+                    
+                    @error('whatsapp')
+                        <span class="text-[11px] text-rose-600 mt-1 block font-medium">
+                            {{ $message == 'The whatsapp field format is invalid.' ? 'Nomor WhatsApp harus berupa angka murni tanpa spasi atau karakter lain.' : $message }}
+                        </span>
+                    @enderror
                 </div>
 
                 <div class="form-control w-full">

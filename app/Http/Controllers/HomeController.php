@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function index(Request $request)
-        {
+    {
             $categories = Category::all();
             $storesCount = Store::where('status', 'active')->count();
 
@@ -65,20 +65,17 @@ class HomeController extends Controller
 
             return view('home', compact('products', 'categories', 'storesCount'));
     }
-    public function storeDetail($id)
-        {
-            // Ambil data toko berdasarkan ID, jika tidak ada kirim 404
-            $store = Store::findOrFail($id);
-            
-            // Ambil semua produk yang dimiliki oleh toko ini saja
-            $products = Product::where('store_id', $id)->latest()->get();
-            
-            // Ambil semua kategori untuk komponen navbar/katalog jika dibutuhkan
-            $categories = Category::all();
-            
-            // Hitung total mitra untuk konsistensi data statistik
-            $storesCount = Store::count();
+    public function storeDetail($slug)
+    {
+        // Menggunakan where() untuk mencocokkan slug/nama unik toko secara aman
+        $store = Store::where('nama_toko', '=', urldecode($slug))->firstOrFail();
+        
+        // Ambil produk berdasarkan store_id dari toko yang aman tadi
+        $products = Product::where('store_id', $store->id)->latest()->get();
+        
+        $categories = Category::all();
+        $storesCount = Store::count();
 
-            return view('store_detail', compact('store', 'products', 'categories', 'storesCount'));
+        return view('store_detail', compact('store', 'products', 'categories', 'storesCount'));
     }
 }

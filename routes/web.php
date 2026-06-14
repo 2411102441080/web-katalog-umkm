@@ -7,8 +7,8 @@ use App\Http\Controllers\AdminStoreController;
 
 // Rute Publik (Halaman Depan Katalog)
 Route::get('/', [HomeController::class, 'index'])->name('home');
-// Rute untuk halaman detail UMKM/Toko
-Route::get('/store/{id}', [HomeController::class, 'storeDetail'])->name('store.detail');
+// Rute untuk halaman detail UMKM/Toko (Menggunakan nama_toko/slug aman)
+Route::get('/store/{slug}', [HomeController::class, 'storeDetail'])->name('store.detail');
 
 // Grup Rute Autentikasi (Wajib Login)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -18,38 +18,29 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     | Jalur Bersama (Bisa diakses Admin Utama & UMKM)
     |--------------------------------------------------------------------------
     */
-    // Rute Manajemen Produk (Pembatasan kueri data diatur di dalam Controller)
+    // Rute Manajemen Produk (Pembatasan CRUD & Read-Only diatur di AdminProductController)
     Route::resource('products', AdminProductController::class);
     
-    // Jalur Update Informasi Toko Mandiri untuk UMKM (Memanfaatkan verb PUT dari Resource)
+    // Rute Utama Toko: 
+    // - Admin akan diarahkan ke halaman Kelola Pengguna Global
+    // - UMKM otomatis diarahkan ke halaman edit profil Toko Mandiri milik mereka sendiri
+    Route::get('stores', [AdminStoreController::class, 'index'])->name('stores.index');
+    
+    // Jalur Update Informasi Toko (Digunakan oleh UMKM maupun Admin saat modifikasi data)
     Route::put('stores/{store}', [AdminStoreController::class, 'update'])->name('stores.update');
 
 
     /*
     |--------------------------------------------------------------------------
-    | Area Khusus Admin Utama (Diproteksi Middleware 'admin')
+    | Area Khusus Admin Utama (Diproteksi Middleware 'admin' / IsAdmin)
     |--------------------------------------------------------------------------
     */
     Route::middleware(['admin'])->group(function () {
-        // Melihat semua daftar toko yang mendaftar
-        Route::get('stores', [AdminStoreController::class, 'index'])->name('stores.index');
-        
         // Memvalidasi status kelayakan toko (Setujui / Tolak)
         Route::patch('stores/{store}/status', [AdminStoreController::class, 'updateStatus'])->name('stores.updateStatus');
         
-        // Menghapus toko tidak aktif atau barang ilegal (Cascading Delete)
+        // Menghapus toko tidak aktif atau user terkait (Cascading Delete)
         Route::delete('stores/{store}', [AdminStoreController::class, 'destroy'])->name('stores.destroy');
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Area Khusus Pelaku UMKM (Diproteksi Middleware 'umkm')
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware(['umkm'])->group(function () {
-        // Halaman Profil Toko milik sendiri (Membuka file my_store.blade.php)
-        Route::get('my-store', [AdminStoreController::class, 'index'])->name('stores.my_store');
     });
     
 });

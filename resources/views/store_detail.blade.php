@@ -83,11 +83,21 @@
                         <button onclick="document.getElementById('modal_detail_{{ $product->id }}').showModal()" class="btn btn-ghost border border-slate-200 hover:bg-slate-50 btn-sm w-full rounded-xl text-xs font-semibold tracking-wide">
                             Detail Produk
                         </button>
+                    @auth
                         <a href="https://wa.me/{{ $product->store->whatsapp }}?text=Halo%20{{ urlencode($product->store->nama_toko) }},%20saya%20tertarik%20dengan%20produk%20*{{ urlencode($product->name) }}*%20yang%20tertera%20pada%20E-Katalog." 
-                           target="_blank" 
-                           class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm">
-                            Hubungi Penjual
+                        target="_blank" 
+                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
+                            Beli Produk
                         </a>
+                    @endauth
+
+                    @guest
+                        <a href="{{ route('login') }}" 
+                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
+                        onclick="alert('Silakan login terlebih dahulu untuk membeli produk!');">
+                            Beli Produk
+                        </a>
+                    @endguest
                     </div>
                 </div>
             </div>

@@ -26,9 +26,9 @@
                 </li>
                 
                 <li>
-                    <a href="{{ auth()->user()->role === 'admin' ? route('admin.stores.index') : route('admin.stores.my_store') }}" class="rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all {{ (request()->routeIs('admin.stores.index') || request()->routeIs('admin.stores.my_store')) ? 'bg-blue-50 text-blue-700 border border-blue-100/50 font-bold' : 'text-slate-600 hover:bg-slate-50' }}">
+                    <a href="{{ route('admin.stores.index') }}" class="rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all {{ request()->routeIs('admin.stores.*') ? 'bg-blue-50 text-blue-700 border border-blue-100/50 font-bold' : 'text-slate-600 hover:bg-slate-50' }}">
                         @if(auth()->user()->role === 'admin')
-                            Kelola Toko
+                            Kelola User & Toko
                         @else
                             Profil Toko
                         @endif
@@ -58,6 +58,13 @@
             <div class="alert bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm mb-6 max-w-6xl mx-auto rounded-xl py-3 text-xs font-semibold flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('info'))
+            <div class="alert bg-amber-50 text-amber-700 border border-amber-200 shadow-sm mb-6 max-w-6xl mx-auto rounded-xl py-3 text-xs font-semibold flex items-center gap-2 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <span>{{ session('info') }}</span>
             </div>
         @endif
 

@@ -167,7 +167,7 @@
 
                 <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
                     <div class="space-y-1">
-                        <a href="{{ route('store.detail', $product->store->id) }}" class="text-[9px] uppercase font-bold tracking-wider text-blue-600 font-mono block hover:underline hover:text-blue-800 transition-colors">
+                        <a href="{{ route('store.detail', urlencode($product->store->nama_toko)) }}" class="text-[9px] uppercase font-bold tracking-wider text-blue-600 font-mono block hover:underline hover:text-blue-800 transition-colors">
                             {{ $product->store->nama_toko }}
                         </a>
                         <h2 class="text-sm font-bold text-slate-800 line-clamp-1">
@@ -185,11 +185,21 @@
                         <button onclick="document.getElementById('modal_detail_{{ $product->id }}').showModal()" class="btn btn-ghost border border-slate-200 hover:bg-slate-50 btn-sm w-full rounded-xl text-xs font-semibold tracking-wide">
                             Detail Produk
                         </button>
+                    @auth
                         <a href="https://wa.me/{{ $product->store->whatsapp }}?text=Halo%20{{ urlencode($product->store->nama_toko) }},%20saya%20tertarik%20dengan%20produk%20*{{ urlencode($product->name) }}*%20yang%20tertera%20pada%20E-Katalog." 
-                           target="_blank" 
-                           class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm">
+                        target="_blank" 
+                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
                             Hubungi Penjual
                         </a>
+                    @endauth
+
+                    @guest
+                        <a href="{{ route('login') }}" 
+                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
+                        onclick="alert('Silakan login terlebih dahulu untuk menghubungi penjual!');">
+                            Hubungi Penjual
+                        </a>
+                    @endguest
                     </div>
                 </div>
             </div>

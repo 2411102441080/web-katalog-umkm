@@ -14,12 +14,10 @@ class AdminProductController extends Controller
     {
         // 1. CEK ROLE: Jika pelaku UMKM, batasi data produk milik tokonya sendiri
         if (auth()->user()->role === 'umkm') {
-            if (!auth()->user()->store) {
-                abort(403, 'Akun UMKM Anda belum memiliki entitas data Toko.');
-            }
-            $products = Product::where('store_id', auth()->user()->store->id)->latest()->get();
+            $storeId = auth()->user()->store ? auth()->user()->store->id : 0;
+            $products = Product::where('store_id', $storeId)->latest()->get();
         } else {
-            // 2. JALUR ADMIN: Langsung ambil semua produk tanpa memicu error "property id on null"
+            // JALUR ADMIN: Langsung ambil semua produk
             $products = Product::with(['store', 'category'])->latest()->get();
         }
 
@@ -28,30 +26,41 @@ class AdminProductController extends Controller
 
     public function create()
     {
-        $categories = Category::all();
-        // Admin bisa memilih semua toko aktif, UMKM tidak perlu karena otomatis
-        $stores = Store::where('status', 'active')->get();
+        $user = auth()->user();
+        
+        // PROTEKSI: Tolak jika GUEST, atau jika UMKM tapi status tokonya BELUM aktif
+        if ($user->role === 'guest' || ($user->role === 'umkm' && (!$user->store || $user->store->status !== 'active'))) {
+            abort(403, 'Aksi ditolak. Akun Mitra UMKM Anda belum aktif atau ditangguhkan.');
+        }
 
+        $categories = Category::all();
+        $stores = Store::where('status', 'active')->get();
+        
         return view('admin.products.create', compact('categories', 'stores'));
     }
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        if ($user->role === 'guest' || ($user->role === 'umkm' && (!$user->store || $user->store->status !== 'active'))) {
+            abort(403, 'Aksi ditolak.');
+        }
+
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            // Jika admin yang menambah, field store_id wajib dipilih dari dropdown
-            'store_id' => auth()->user()->role === 'admin' ? 'required|exists:stores,id' : 'nullable',
+            'store_id' => $user->role === 'admin' ? 'required|exists:stores,id' : 'nullable',
         ]);
 
         $data = $request->all();
 
-        // Otomatisasi store_id khusus untuk akun UMKM
-        if (auth()->user()->role === 'umkm') {
-            $data['store_id'] = auth()->user()->store->id;
+        // Otomatis pasangkan store_id milik UMKM itu sendiri
+        if ($user->role === 'umkm') {
+            $data['store_id'] = $user->store->id;
         }
 
         if ($request->hasFile('image')) {
@@ -65,9 +74,15 @@ class AdminProductController extends Controller
 
     public function edit(Product $product)
     {
-        // Proteksi: Akun UMKM dilarang mengedit produk milik toko lain
-        if (auth()->user()->role === 'umkm' && $product->store_id !== auth()->user()->store->id) {
-            abort(403, 'Akses ditolak. Anda bukan pemilik sah produk ini.');
+        $user = auth()->user();
+
+        // PROTEKSI: Hanya admin utama ATAU pemilik sah toko yang berstatus aktif yang bisa edit
+        if ($user->role === 'umkm') {
+            if (!$user->store || $user->store->status !== 'active' || $product->store_id !== $user->store->id) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki hak memodifikasi produk ini.');
+            }
+        } elseif ($user->role !== 'admin') {
+            abort(403);
         }
 
         $categories = Category::all();
@@ -78,8 +93,14 @@ class AdminProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        if (auth()->user()->role === 'umkm' && $product->store_id !== auth()->user()->store->id) {
-            abort(403, 'Akses ditolak.');
+        $user = auth()->user();
+
+        if ($user->role === 'umkm') {
+            if (!$user->store || $user->store->status !== 'active' || $product->store_id !== $user->store->id) {
+                abort(403, 'Akses ditolak.');
+            }
+        } elseif ($user->role !== 'admin') {
+            abort(403);
         }
 
         $request->validate([
@@ -88,13 +109,13 @@ class AdminProductController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'store_id' => auth()->user()->role === 'admin' ? 'required|exists:stores,id' : 'nullable',
+            'store_id' => $user->role === 'admin' ? 'required|exists:stores,id' : 'nullable',
         ]);
 
         $data = $request->all();
 
-        if (auth()->user()->role === 'umkm') {
-            $data['store_id'] = auth()->user()->store->id;
+        if ($user->role === 'umkm') {
+            $data['store_id'] = $user->store->id;
         }
 
         if ($request->hasFile('image')) {
@@ -111,8 +132,14 @@ class AdminProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if (auth()->user()->role === 'umkm' && $product->store_id !== auth()->user()->store->id) {
-            abort(403, 'Akses ditolak.');
+        $user = auth()->user();
+
+        if ($user->role === 'umkm') {
+            if (!$user->store || $user->store->status !== 'active' || $product->store_id !== $user->store->id) {
+                abort(403, 'Akses ditolak.');
+            }
+        } elseif ($user->role !== 'admin') {
+            abort(403);
         }
 
         if ($product->image) {

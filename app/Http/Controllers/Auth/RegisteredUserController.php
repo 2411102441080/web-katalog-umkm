@@ -74,13 +74,18 @@ class RegisteredUserController extends Controller
                 'alamat' => $request->alamat,
                 'status' => 'pending', 
             ]);
-
-            // Amankan Sesi: Lempar ke login dan tunggu verifikasi admin (Opsi 1 Keamanan)
-            return redirect()->route('login')->with('success', 'Pendaftaran Mitra berhasil! Akun dan Toko Anda saat ini sedang dalam proses peninjauan oleh Admin Utama. Silakan mencoba masuk setelah dikonfirmasi.');
         }
 
-        // 5. Jika mendaftar sebagai GUEST (Pembeli Umum): Langsung loginkan dan lempar ke beranda katalog
+        // 5. UTAMA: Otomatis loginkan user yang baru mendaftar (baik UMKM maupun Guest)
         Auth::login($user);
+
+        // 6. Alihkan ke halaman tujuan sesuai rolenya
+        if ($user->role === 'umkm') {
+            // UMKM langsung masuk ke dashboard manajemen produk internal
+            return redirect()->route('admin.products.index');
+        }
+
+        // Guest/Pembeli umum diarahkan ke halaman katalog depan
         return redirect()->route('home');
     }
 }

@@ -11,25 +11,33 @@ class AdminStoreController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Store::with('user');
-
-        // Jika UMKM yang membuka menu ini, langsung arahkan ke toko mereka sendiri (tidak melihat toko lain)
+        // 1. JALUR UMKM: Langsung arahkan ke halaman profil toko mereka sendiri
         if (auth()->user()->role === 'umkm') {
             $store = auth()->user()->store;
             return view('admin.stores.my_store', compact('store'));
         }
 
-        // Jalur khusus Admin Utama: Bisa mencari nama toko dan melihat data validasi global
+        // 2. JALUR ADMIN UTAMA: Memantau semua Pengguna beserta data Toko mereka
+        $query = User::with('store');
+
+        // Fitur Pencarian Global Admin
         if ($request->has('search') && $request->search != '') {
-            $query->where('nama_toko', 'like', '%' . $request->search . '%');
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%')
+                  ->orWhereHas('store', function($storeQuery) use ($searchTerm) {
+                      $storeQuery->where('nama_toko', 'like', '%' . $searchTerm . '%');
+                  });
+            });
         }
 
-        $stores = $query->latest()->get();
+        $users = $query->latest()->get();
 
-        return view('admin.stores.index', compact('stores'));
+        return view('admin.stores.index', compact('users'));
     }
 
-    // Fungsi khusus Admin Utama untuk memvalidasi UMKM (Setujui / Tolak)
+    // Fungsi khusus Admin Utama untuk memvalidasi status pendaftaran UMKM (Setujui / Tolak)
     public function updateStatus(Request $request, Store $store)
     {
         if (auth()->user()->role !== 'admin') {
@@ -42,13 +50,14 @@ class AdminStoreController extends Controller
 
         $store->update(['status' => $request->status]);
 
-        return redirect()->back()->with('success', 'Status verifikasi mitra UMKM berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Status verifikasi mitra UMKM ' . $store->nama_toko . ' berhasil diperbarui.');
     }
 
+    // Fungsi bagi UMKM untuk memperbarui data profil toko mereka sendiri via halaman my_store
     public function update(Request $request, Store $store)
     {
-        // Proteksi: Akun UMKM dilarang mengedit data toko milik orang lain
-        if (auth()->user()->role === 'umkm' && $store->id !== auth()->user()->store->id) {
+        // Proteksi: Akun UMKM dilarang keras mengedit data toko milik orang lain
+        if (auth()->user()->role === 'umkm' && (!auth()->user()->store || $store->id !== auth()->user()->store->id)) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -60,7 +69,7 @@ class AdminStoreController extends Controller
 
         $data = $request->all();
 
-        // Pembersihan otomatis format nomor WhatsApp
+        // Pembersihan otomatis format nomor WhatsApp murni angka
         $nomor = preg_replace('/[^0-9]/', '', $data['whatsapp']);
         if (str_starts_with($nomor, '0')) {
             $nomor = '62' . substr($nomor, 1);
@@ -72,14 +81,25 @@ class AdminStoreController extends Controller
         return redirect()->back()->with('success', 'Informasi profil toko UMKM berhasil diperbarui.');
     }
 
-    public function destroy(Store $store)
+    // Fungsi Hapus Fleksibel: Menangani hapus Mitra UMKM maupun User biasa (Guest)
+    public function destroy(Request $request, $id)
     {
-        // Hanya Admin Utama yang berhak menghapus entitas toko atau memblokir barang ilegal
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Akses ditolak. Tindakan ini memerlukan hak akses Admin Utama.');
         }
 
-        // Hapus massal seluruh produk dan berkas fisik gambar milik toko ini (Cascading Delete)
+        // Jalur A: Jika menghapus Pengguna Biasa / Guest (Tanpa entitas toko)
+        if ($id == 0 && $request->has('user_id')) {
+            $user = User::findOrFail($request->user_id);
+            $user->delete();
+            
+            return redirect()->route('admin.stores.index')->with('success', 'Akun pengguna biasa berhasil dihapus dari sistem.');
+        }
+
+        // Jalur B: Jika menghapus akun UMKM (Menghapus Toko, User, dan Produk secara Cascading)
+        $store = Store::findOrFail($id);
+
+        // Bersihkan semua file gambar produk milik toko ini di Storage internal
         $products = $store->products;
         foreach ($products as $product) {
             if ($product->image) {
@@ -88,13 +108,14 @@ class AdminStoreController extends Controller
             $product->delete();
         }
 
-        // Hapus juga data user pendaftarnya agar sistem bersih
+        // Hapus akun pendaftarnya (User)
         if ($store->user) {
             $store->user->delete();
         }
 
+        // Hapus entitas tokonya
         $store->delete();
 
-        return redirect()->route('admin.stores.index')->with('success', 'Toko UMKM dan seluruh aset produk ilegal di dalamnya berhasil dibersihkan dari sistem.');
+        return redirect()->route('admin.stores.index')->with('success', 'Toko UMKM dan seluruh data pengguna terkait berhasil dibersihkan dari sistem.');
     }
 }

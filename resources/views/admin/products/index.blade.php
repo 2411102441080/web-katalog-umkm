@@ -1,101 +1,102 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-6xl mx-auto space-y-6">
-    
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-base-100 p-6 rounded-2xl border border-blue-100 shadow-sm">
+<div class="bg-white border border-blue-100 rounded-2xl p-6 shadow-xs max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-blue-50">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Produk</h1>
-            <p class="text-xs text-slate-500 mt-1">Halaman pengelolaan data komoditas UMKM pada sistem e-katalog.</p>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800">Daftar Produk Katalog</h1>
+            <p class="text-[10px] text-slate-400 tracking-wider mt-0.5">Kelola data komoditas barang dagangan mitra UMKM</p>
         </div>
-        <a href="{{ route('admin.products.create') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none rounded-xl shadow-sm px-5 w-full sm:w-auto text-xs">
-            Tambah Produk
-        </a>
+        
+        @if(auth()->user()->role === 'admin' || (auth()->user()->role === 'umkm' && auth()->user()->store && auth()->user()->store->status === 'active'))
+            <a href="{{ route('admin.products.create') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm h-9 px-4 rounded-xl text-xs font-bold uppercase tracking-wide shrink-0">
+                ➕ Tambah Produk Baru
+            </a>
+        @endif
     </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex flex-col justify-center">
-            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Jumlah Produk</span>
-            <span class="text-2xl font-bold text-slate-800 mt-1">{{ $products->count() }} Item</span>
-        </div>
-        <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex flex-col justify-center">
-            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Jumlah Toko</span>
-            <span class="text-2xl font-bold text-blue-600 mt-1">{{ $products->pluck('store_id')->unique()->count() }} UMKM</span>
-        </div>
-    </div>
-
-    <div class="card bg-base-100 border border-blue-100 shadow-sm overflow-hidden rounded-2xl">
-        <div class="overflow-x-auto">
-            <table class="table table-md w-full">
-                <thead>
-                    <tr class="bg-slate-50 text-slate-600 border-b border-blue-100 text-xs">
-                        <th>Produk</th>
-                        <th>Kategori</th>
-                        <th>Toko Asal</th>
-                        <th>Harga</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($products as $product)
-                    <tr class="hover:bg-blue-50/20 transition-colors text-slate-700 text-xs">
-                        <td class="py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="avatar">
-                                    <div class="mask mask-squircle w-11 h-11 bg-slate-100">
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-800">{{ $product->name }}</div>
-                                    <div class="text-[9px] text-slate-400 font-mono mt-0.5">PRD-{{ 1000 + $product->id }}</div>
-                                </div>
+    <div class="overflow-x-auto w-full">
+        <table class="table w-full text-xs text-left text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 uppercase tracking-wider text-[10px] border-b border-blue-50">
+                <tr>
+                    <th class="p-3 w-24">Foto</th>
+                    <th class="p-3">Nama Produk</th>
+                    <th class="p-3">Kategori</th>
+                    <th class="p-3">Harga</th>
+                    @if(auth()->user()->role === 'admin')
+                        <th class="p-3">Toko Pemilik</th>
+                    @endif
+                    <th class="p-3 text-center">Aksi Manajemen</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse($products as $product)
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="p-3">
+                        <div class="avatar">
+                            <div class="w-16 h-16 rounded-xl border border-slate-100 shadow-xs bg-slate-50 flex items-center justify-center overflow-hidden">
+                                @if($product->image)
+                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-1" />
+                                @else
+                                    <span class="text-[10px] text-slate-400">No Image</span>
+                                @endif
                             </div>
+                        </div>
+                    </td>
+
+                    <td class="p-3 font-bold text-slate-800">
+                        {{ $product->name }}
+                    </td>
+                    
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md font-medium text-[11px]">
+                            {{ $product->category ? $product->category->nama_kategori : 'Tanpa Kategori' }}
+                        </span>
+                    </td>
+
+                    <td class="p-3 font-semibold text-slate-700 font-mono">
+                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                    </td>
+
+                    @if(auth()->user()->role === 'admin')
+                        <td class="p-3 font-medium text-blue-600">
+                            {{ $product->store ? $product->store->nama_toko : 'Tanpa Toko' }}
                         </td>
-                        <td>
-                            <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-md border border-blue-100 uppercase tracking-tight">
-                                {{ $product->category->nama_kategori }}
-                            </span>
-                        </td>
-                        <td class="font-medium text-slate-600">
-                            {{ $product->store->nama_toko }}
-                        </td>
-                        <td class="font-bold text-slate-800">
-                            Rp {{ number_format($product->price, 0, ',', '.') }}
-                        </td>
-                        <td class="text-center">
-                            <div class="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 gap-1">
-                                <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-ghost btn-xs rounded-md hover:bg-amber-500 hover:text-white font-medium px-2.5">
+                    @endif
+
+                    <td class="p-3 text-center">
+                        @if(auth()->user()->role === 'admin' || (auth()->user()->role === 'umkm' && auth()->user()->store && auth()->user()->store->status === 'active' && $product->store_id === auth()->user()->store->id))
+                            <div class="flex items-center justify-center gap-1.5">
+                                
+                                <a href="{{ route('admin.products.edit', $product->id) }}" class="px-2.5 py-1 text-[10px] btn btn-xs bg-amber-500 hover:bg-amber-600 text-white border-none rounded-lg font-bold">
                                     Edit
                                 </a>
-                                
-                                <div class="w-[1px] h-3 bg-slate-200 self-center"></div>
-                                
-                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="m-0 p-0 inline form-delete">
-                                    @csrf 
+
+                                <form action="{{ route('admin.products.destroy', $product->id) }}" 
+                                      method="POST" 
+                                      class="form-delete inline m-0 p-0">
+                                    @csrf
                                     @method('DELETE')
-                                    
-                                    <button type="button" class="btn btn-ghost btn-xs rounded-md hover:bg-rose-600 hover:text-white font-medium px-2.5 btn-delete">
+                                    <button type="button" class="btn-delete px-2.5 py-0.5 text-[10px] btn btn-xs bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg font-bold">
                                         Hapus
                                     </button>
                                 </form>
+
                             </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="py-16 text-center text-slate-400 italic">
-                            Belum ada data komoditas yang terdaftar dalam database.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <div class="text-center py-2">
-        <p class="text-[9px] text-slate-400 uppercase tracking-widest font-semibold">E-Katalog UMKM v1.0</p>
+                        @else
+                            <span class="text-slate-400 italic text-[11px] font-medium">Akses Dikunci</span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="p-6 text-center text-slate-400 font-medium italic">
+                        Belum ada data produk yang terdaftar di dalam katalog.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 @endsection

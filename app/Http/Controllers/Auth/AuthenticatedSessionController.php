@@ -28,31 +28,29 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // =============== PROTEKSI STATUS UMKM ===============
         $user = auth()->user();
         
-        // Jika yang login adalah UMKM dan status tokonya belum aktif
-        if ($user->role === 'umkm' && $user->store && $user->store->status !== 'active') {
-            
-            // Ambil status toko untuk menentukan pesan hambatannya
-            $status = $user->store->status;
-            
-            // Keluarkan kembali user dari sistem keamanan login
-            auth()->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        // JALUR PENGALIHAN BERDASARKAN ROLE
+        if ($user->role === 'guest') {
+            // Jika pembeli biasa/guest, langsung arahkan ke katalog depan
+            return redirect()->intended(route('home'));
+        }
 
-            // Lempar kembali ke halaman login dengan pesan sesuai status toko
+        // Jalur untuk UMKM (Pending/Active/Rejected) dan Admin Utama masuk ke Dashboard
+        if ($user->role === 'umkm' && $user->store) {
+            $status = $user->store->status;
+
             if ($status === 'pending') {
-                return redirect()->route('login')->with('status', 'Akun UMKM Anda sedang dalam proses validasi oleh Admin Utama. Mohon tunggu verifikasi.');
+                return redirect()->route('admin.products.index')->with('info', 'Mode Pratinjau: Akun Toko Anda masih berstatus Pending. Anda belum dapat mengelola produk hingga disetujui Admin.');
             } elseif ($status === 'rejected') {
-                return redirect()->route('login')->with('status', 'Maaf, pengajuan pendaftaran mitra UMKM Anda ditolak oleh Admin Utama karena tidak memenuhi syarat.');
+                return redirect()->route('admin.products.index')->with('info', 'Pemberitahuan: Pengajuan Toko Anda Ditolak oleh Admin. Hak pengelolaan produk dinonaktifkan.');
             }
         }
-        // =====================================================
 
+        // Kondisi jika akun aktif murni atau admin utama
         return redirect()->intended(route('admin.products.index', absolute: false));
     }
+
     /**
      * Destroy an authenticated session.
      */

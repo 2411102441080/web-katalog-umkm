@@ -15,16 +15,12 @@ class IsUMKM
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->check() || auth()->user()->role !== 'umkm') {
-            return redirect('/')->with('error', 'Akses khusus pelaku UMKM.');
+        // Selama dia login dan rolenya adalah 'admin' atau 'umkm', BERIKAN AKSES MASUK
+        if (auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'umkm')) {
+            return $next($request);
         }
 
-        // TAMBAHAN: Jika toko masih pending, kunci aksesnya dan beri peringatan
-        if (auth()->user()->store->status === 'pending') {
-            auth()->logout(); // Keluarkan akun otomatis
-            return redirect('/login')->with('status', 'Akun UMKM Anda sedang dalam proses validasi oleh Admin Utama. Mohon tunggu.');
-        }
-
-        return $next($request);
+        abort(403, 'Anda tidak memiliki hak akses ke halaman ini.');
+        return redirect()->route('home')->with('error', 'Anda tidak memiliki hak akses ke halaman ini.');
     }
 }

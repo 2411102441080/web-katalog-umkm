@@ -13,13 +13,13 @@ class IsAdmin
      *
      * @param  Closure(Request): (Response)  $next
      */
-public function handle(Request $request, Closure $next)
-{
-    // Selama dia login dan rolenya adalah 'admin' atau 'umkm', BERIKAN AKSES MASUK
-    if (auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'umkm')) {
-        return $next($request);
-    }
+    public function handle(Request $request, Closure $next): Response
+        {
+            // HANYA admin yang boleh lewat
+            if (auth()->check() && auth()->user()->role === 'admin') {
+                return $next($request);
+            }
 
-    abort(403, 'Anda tidak memiliki hak akses ke halaman ini.');
-}
+            abort(403, 'Halaman ini hanya khusus untuk Admin Utama.');
+        }
 }

@@ -15,9 +15,12 @@
         </div>
         <div class="flex-none flex items-center gap-2">
             @auth
-                <a href="{{ route('admin.products.index') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm h-9 min-h-9 flex items-center">
-                    Kembali ke Dashboard
-                </a>
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'umkm')
+                    <a href="{{ route('admin.products.index') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm h-9 min-h-9 flex items-center">
+                        Kembali ke Dashboard
+                    </a>
+                @endif
+
                 <form method="POST" action="{{ route('logout') }}" class="m-0 p-0 inline-flex items-center">
                     @csrf
                     <button type="submit" class="btn btn-ghost hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 btn-sm rounded-xl text-xs font-semibold px-4 h-9 min-h-9" onclick="event.preventDefault(); this.closest('form').submit();">
@@ -28,7 +31,7 @@
 
             @guest
                 <a href="{{ route('register') }}" class="btn btn-ghost hover:bg-blue-50 hover:text-blue-700 border border-slate-200 hover:border-blue-300 btn-sm rounded-xl text-xs font-semibold px-4 h-9 min-h-9 flex items-center">
-                    Daftar Mitra UMKM
+                    Daftar
                 </a>
                 <a href="{{ route('login') }}" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none btn-sm rounded-xl text-xs font-semibold px-4 shadow-sm h-9 min-h-9 flex items-center">
                     Masuk Akun
@@ -194,9 +197,9 @@
                     @endauth
 
                     @guest
-                        <a href="{{ route('login') }}" 
-                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
-                        onclick="alert('Silakan login terlebih dahulu untuk menghubungi penjual!');">
+                        <a 
+                        class="btn btn-guest bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm w-full rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
+                        >
                             Hubungi Penjual
                         </a>
                     @endguest
@@ -239,11 +242,18 @@
                                 <form method="dialog" class="flex-1 m-0 p-0">
                                     <button class="btn btn-ghost border border-slate-200 w-full btn-sm rounded-xl text-xs font-semibold">Tutup</button>
                                 </form>
+                                @auth
                                 <a href="https://wa.me/{{ $product->store->whatsapp }}?text=Halo%20{{ urlencode($product->store->nama_toko) }},%20saya%20tertarik%20dengan%20produk%20*{{ urlencode($product->name) }}*%20yang%20tertera%20pada%20E-Katalog." 
-                                   target="_blank" 
-                                   class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
+                                target="_blank" 
+                                class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
+                                    Beli Produk
+                                </a>    
+                                @endauth
+                                @guest
+                                <a class="btn btn-guest bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
                                     Beli Produk
                                 </a>
+                                @endguest
                             </div>
                         </div>
                     </div>
@@ -267,6 +277,6 @@
     </main>
 
     @include('include.footer')
-
+    @include('include.alert')
 </body>
 </html>

@@ -39,11 +39,18 @@
                 </div>
 
                 <div class="pt-2">
+                    @auth
                     <a href="https://wa.me/{{ $store->whatsapp }}?text=Halo%20{{ urlencode($store->nama_toko) }},%20saya%20melihat%20profil%20toko%20Anda%20di%20E-Katalog." 
                        target="_blank" 
                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm rounded-xl text-xs font-bold px-6 shadow-sm inline-flex items-center gap-2">
                         Hubungi Pemilik UMKM
                     </a>
+                    @endauth
+                    @guest
+                    <a class="btn btn-guest bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm rounded-xl text-xs font-bold px-6 shadow-sm inline-flex items-center gap-2">
+                        Hubungi Pemilik UMKM
+                    </a>
+                    @endguest
                 </div>
             </div>
         </div>
@@ -90,11 +97,10 @@
                             Beli Produk
                         </a>
                     @endauth
-
                     @guest
-                        <a href="{{ route('login') }}" 
-                        class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
-                        onclick="alert('Silakan login terlebih dahulu untuk membeli produk!');">
+                        <a 
+                        class="btn btn-guest bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
+                        >
                             Beli Produk
                         </a>
                     @endguest
@@ -129,13 +135,22 @@
                             </div>
                             <div class="flex gap-2 pt-2">
                                 <form method="dialog" class="flex-1 m-0 p-0">
-                                    <button class="btn btn-ghost border border-slate-200 w-full btn-sm rounded-xl text-xs font-semibold">Tutup</button>
+                                <button class="btn btn-ghost border border-slate-200 w-full btn-sm rounded-xl text-xs font-semibold">Tutup</button>
                                 </form>
+                                @auth
                                 <a href="https://wa.me/{{ $product->store->whatsapp }}?text=Halo%20{{ urlencode($product->store->nama_toko) }},%20saya%20tertarik%20dengan%20produk%20*{{ urlencode($product->name) }}*%20yang%20tertera%20pada%20E-Katalog." 
                                    target="_blank" 
                                    class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center">
                                     Beli Produk
                                 </a>
+                                @endauth
+                                @guest
+                                <a 
+                                   class="btn btn-guest bg-emerald-600 hover:bg-emerald-700 text-white border-none btn-sm flex-1 rounded-xl text-xs font-semibold tracking-wide shadow-sm text-center flex items-center justify-center"
+                                   >
+                                    Beli Produk
+                                </a>
+                                @endguest
                             </div>
                         </div>
                     </div>
@@ -156,6 +171,7 @@
     </main>
 
     @include('include.footer')
-
+    
+    @include('include.alert')
 </body>
 </html>

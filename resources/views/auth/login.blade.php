@@ -57,7 +57,7 @@
             </div>
 
             <div class="flex items-center justify-between pt-1">
-                <label for="remember_me" class="inline-flex items-center cursor-pointer select-none">
+                <label class="checkbox-label inline-flex items-center cursor-pointer select-none">
                     <input id="remember_me" type="checkbox" class="rounded border-blue-200 text-blue-600 focus:ring-blue-400 focus:ring-offset-0 w-3.5 h-3.5" name="remember">
                     <span class="ms-2 text-xs font-medium text-slate-500 hover:text-slate-600">Ingat saya</span>
                 </label>
@@ -76,7 +76,16 @@
             </div>
         </form>
 
-        <div class="text-center pt-2 border-t border-slate-50">
+        @if (Route::has('register'))
+            <div class="text-center pt-1 text-xs text-slate-500">
+                Belum punya akun? 
+                <a href="{{ route('register') }}" class="font-bold text-blue-600 hover:text-blue-700 transition-colors underline decoration-dotted offset-2">
+                    Daftar Sekarang
+                </a>
+            </div>
+        @endif
+
+        <div class="text-center pt-2 border-t border-slate-100">
             <a href="/" class="text-[11px] font-bold text-slate-400 hover:text-blue-500 uppercase tracking-wider transition-colors">
                 ← Kembali ke Katalog
             </a>
